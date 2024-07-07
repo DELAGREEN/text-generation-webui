@@ -46,5 +46,6 @@ wandb
 # ignore user docker config and top level links to docker files
 /docker-compose.yaml
 /docker-compose.yml
-/Dockerfile
+#/Dockerfile
 .env
+models/place-your-models-here.txt
