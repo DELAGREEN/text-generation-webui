@@ -82,5 +82,5 @@ USER docker
 RUN /home/docker/data/text-generation-webui/start.sh
 
 
-EXPOSE 7860
+#EXPOSE 7860
 CMD [ "/bin/bash" ]
