@@ -165,7 +165,7 @@ def create_interface():
             #server_name=None if not shared.args.listen else (shared.args.listen_host or '0.0.0.0'),
             server_name='0.0.0.0',
             #server_port=shared.args.listen_port,
-            server_port='7860',
+            server_port=7860,
             inbrowser=shared.args.auto_launch,
             auth=auth or None,
             ssl_verify=False if (shared.args.ssl_keyfile or shared.args.ssl_certfile) else True,
