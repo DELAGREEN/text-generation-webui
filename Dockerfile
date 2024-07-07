@@ -5,9 +5,6 @@ WORKDIR /root
 
 SHELL [ "/bin/bash", "-c" ]
 
-#ARG PYTHON_VERSION_TAG=3.10.5
-#ARG LINK_PYTHON_TO_PYTHON3=1
-
 # Установка зависимостей
 RUN apt-get -qq -y update && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
@@ -46,15 +43,6 @@ RUN apt-get -qq -y update && \
 # Инициализация git-lfs
 RUN git lfs install
 
-#COPY install_python.sh /root/install_python.sh
-#RUN bash /root/install_python.sh ${PYTHON_VERSION_TAG} ${LINK_PYTHON_TO_PYTHON3} && \
-#    rm -r /root/install_python.sh Python-${PYTHON_VERSION_TAG}
-
-# Настройка bash-completion
-RUN export SED_RANGE="$(($(sed -n '\|enable bash completion in interactive shells|=' /etc/bash.bashrc)+1)),$(($(sed -n '\|enable bash completion in interactive shells|=' /etc/bash.bashrc)+7))" && \
-    sed -i -e "${SED_RANGE}"' s/^#//' /etc/bash.bashrc && \
-    unset SED_RANGE
-
 # Создание пользователя docker с правами sudo
 RUN useradd -m docker && \
     usermod -aG sudo docker && \
@@ -73,8 +61,14 @@ USER docker
 ENV PATH /home/docker/.local/bin:$PATH
 RUN touch $HOME/.sudo_as_admin_successful
 
-# Клонирование репозитория и копирование необходимых файлов
+# Клонирование репозитория
 RUN git clone https://github.com/DELAGREEN/text-generation-webui.git /home/docker/data/text-generation-webui
+
+# Переключение в директорию репозитория и загрузка больших файлов
+WORKDIR /home/docker/data/text-generation-webui
+RUN git lfs pull
+
+# Копирование необходимых файлов
 COPY /models /home/docker/data/text-generation-webui/models
 COPY start.sh /home/docker/data/text-generation-webui/
 
@@ -84,17 +78,9 @@ RUN chmod -R +w /home/docker/data/text-generation-webui
 
 USER docker
 
-WORKDIR /home/docker/data/text-generation-webui
-
-# Загрузка больших файлов
-RUN git lfs pull
-
 # Выполнение скрипта
 RUN /home/docker/data/text-generation-webui/start.sh
 
-# Создание финального образа
-#FROM ubuntu:20.04
-#COPY --from=builder /home/docker/data /home/docker/data
-#WORKDIR /home/docker/data/text-generation-webui
+
 EXPOSE 7860
 CMD [ "/bin/bash" ]
