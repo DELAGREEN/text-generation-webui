@@ -40,9 +40,6 @@ RUN apt-get -qq -y update && \
     apt-get -y autoremove && \
     rm -rf /var/lib/apt/lists/*
 
-# Инициализация git-lfs
-RUN git lfs install
-
 # Создание пользователя docker с правами sudo
 RUN useradd -m docker && \
     usermod -aG sudo docker && \
@@ -66,10 +63,11 @@ RUN git clone https://github.com/DELAGREEN/text-generation-webui.git /home/docke
 
 # Переключение в директорию репозитория и загрузка больших файлов
 WORKDIR /home/docker/data/text-generation-webui
-RUN git lfs pull
+RUN git lfs install && git lfs pull
 
 # Копирование необходимых файлов
 COPY /models /home/docker/data/text-generation-webui/models
+#Переписать копирование модели с диска своего на клонирование репозитория с помошью lfs git lfs pull в папке с репозиторием
 COPY start.sh /home/docker/data/text-generation-webui/
 
 USER root
